@@ -26,17 +26,8 @@ int servoNum = 1;
 char inputCommand ;             // a string to hold incoming data
 boolean inputComplete = false;
 
-const int slider0 = A0;
-const int slider1 = A1;
-//const int pot_pins[] = {A0, A1, A2};
-//const int n_pins = 3;
-
-
-
-//const int pot_pin0 = A0;         // input pin for potentiometer 
-//const int pot_pin1 = A1;         // input pin for potentiometer 
-
-//float slider_0, slider_1, slider_3;
+const int sliders[] = {A1, A2};
+const int n_sliders = 2;
 
 const int pot_max = 1023;
 const int pot_min = 0;
@@ -52,71 +43,25 @@ void setup () {
 }
 
 void loop () {
-//  delay(10000);
-//  myservo.setVelocity(200);     // set velocity to 100(range:0-300) in Servo mode
-//  myservo.write(1, 150); //ID:1  Pos:300  velocity:150
-//  Serial.println("done");
-//  delay(5000);
-//  //myservo.setVelocity(50);      // set velocity to 100(range:0-300) in Servo mode
-//
-//  myservo.setVelocity(200);     // set velocity to 100(range:0-300) in Servo mode
-//  myservo.write(2, 150); //ID:1  Pos:300  velocity:150
-//  Serial.println("done");
-//  delay(5000);
-//  myservo.setVelocity(50);      // set velocity to 100(range:0-300) in Servo mode
-  
+  // setting up
+  delay(10000);
+  myservo.setVelocity(200);     // set velocity to 100(range:0-300) in Servo mode
+  myservo.write(1, 150); //ID:1  Pos:300  velocity:150
+  myservo.write(2, 150); //ID:1  Pos:300  velocity:150
+  Serial.println("done");
 
   while(1){
-//      myservo.write(servoNum, 300); //ID:1  Pos:0  velocity:150
-//      delay(3000);
-//      myservo.write(servoNum, 0); //ID:1  Pos:0  velocity:150
-//      delay(3000);
+    for(int s=0; s<n_sliders; s++){
+      Serial.print(analogRead(sliders[s]));
+      int servo_val = map(analogRead(sliders[s]), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
+      Serial.print(" ");
+      Serial.print(servo_val);
+      Serial.print("    ");
+      myservo.write(s+1, servo_val);
+      }
+    Serial.println();
 
-//    for(int pin=1; pin<n_pins+1; pin++){
-//      int pin_val = analogRead(pot_pins[pin]);
-//      Serial.print(pin);
-//      Serial.print(" ");
-//      Serial.println(pin_val);
-//      int servo_val = map(pin_val, pot_min, pot_max, servo_min, servo_max);
-//      myservo.write(pin, servo_val); //ID:1  Pos:300  velocity:150
-//      }
-
-  Serial.print(analogRead(slider0));
-  int servo_val = map(analogRead(slider0), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
-  Serial.print(" ");
-  Serial.print(servo_val);
-  myservo.write(1, servo_val); //ID:1  Pos:300  velocity:150
-
-  Serial.print("     ");
-
-  Serial.print(analogRead(slider1));
-  servo_val = map(analogRead(slider1), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
-  Serial.print(" ");
-  Serial.println(servo_val);
-  myservo.write(2, servo_val); //ID:1  Pos:300  velocity:150
-  
-//  Serial.print(" ");
-//  Serial.println(analogRead(pot_pin1));
-//  slider_0 = analogRead(pot_pin0)
-//
-//   
-//  int servo_val = map(pot_val, pot_min, pot_max, 0, 1023);  // Map value to full range of servo
-  
-
-//  serialEvent();
-//  if (inputComplete) {
-//    Serial.print("Your command is: "); Serial.println(inputCommand); Serial.println("");
-//    controlServo(inputCommand);
-//    // clear the command:
-//    inputCommand = 0;
-//    inputComplete = false;
-//  }
- 
-}
-
-
-//  controlServo('d');
-//  controlServo('p');
+  }
 
 //  serialEvent();
 //  if (inputComplete) {
@@ -154,40 +99,12 @@ void controlServo(char val) {
       break;
     case 'v':
       myservo.setVelocity(200);// set velocity to 100(range:0-300) in Servo mode
-      break;
-//    case 'm':
-//      myservo.rotate(servoNum, 150); //   Anti CW    ID:1  Velocity: 150_middle velocity  300_max
-//      delay(2000);
-//      myservo.rotate(servoNum, -150); //  CW     ID:1  Velocity: -150_middle velocity  -300_max
-//      delay(2000);
-//      myservo.rotate(servoNum, 0); //Stop
-//      myservo.Reset(servoNum);    //Only Dynamixel AX need this instruction while changing working mode
-//      //CDS55xx don't need this, it can switch freely between its working mode
-//      break;
-//
-//    case 'n':
-////      myservo.rotate(0, 150); //   Anti CW    ID:1  Velocity: 150_middle velocity  300_max
-////      delay(2000);
-////      myservo.rotate(0, -150); //  CW     ID:1  Velocity: -150_middle velocity  -300_max
-////      delay(2000);
-////      myservo.rotate(0, 0); //Stop
-////      myservo.Reset(0);    //Only Dynamixel AX need this instruction while changing working mode
-////      Serial.println("done_1");
-//      myservo.rotate(2, 200); //   Anti CW    ID:1  Velocity: 150_middle velocity  300_max
-//      delay(2000);
-//      myservo.rotate(2, -200); //  CW     ID:1  Velocity: -150_middle velocity  -300_max
-//      delay(2000);
-//      myservo.rotate(2, 0); //Stop
-//      myservo.Reset(2);    //Only Dynamixel AX need this instruction while changing working mode
-//      Serial.println("done_2");
-//      //CDS55xx don't need this, it can switch freely between its working mode
-//      break;
-      
+      break;      
     case 'r':
       myservo.Reset(servoNum);//Restore ID2 servo to factory Settings ( ID:1  Baud rate:1000000)
       break;
     case 'i':
-      myservo.SetID(2,1);//ID:1   newID:2
+      myservo.SetID(1,2);//ID:1   newID:2
       break;
     case 'd':  //Reset servo to ID>>servoNum. If you don't know your Servo ID, please send "d".
       Serial.print("Please wait..");
