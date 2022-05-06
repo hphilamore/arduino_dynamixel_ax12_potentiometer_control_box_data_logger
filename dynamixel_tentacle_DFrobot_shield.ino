@@ -21,6 +21,16 @@
 #include <SPI.h>
 #include <ServoCds55.h>
 ServoCds55 myservo;
+// include the SD library:
+#include <SD.h>
+
+// set up variables using the SD utility library functions:
+Sd2Card card;
+SdVolume volume;
+SdFile root;
+
+// change this to match your SD shield or module;
+const int chipSelect = 4;
 
 int servoNum = 1;
 char inputCommand ;             // a string to hold incoming data
@@ -36,12 +46,28 @@ const int pot_min = 0;
 const int servo_max = 300;
 const int servo_min = 0;
 
+File myFile;
+
 
 void setup () {
   Serial.begin (115200);
   myservo.begin ();
 //  pinMode(pot_pin0, INPUT);      // Input pin for slider/ potentiometer 
 //  pinMode(pot_pin1, INPUT);      // Input pin for slider/ potentiometer 
+
+// Open serial communications and wait for port to open:
+  //Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+
 }
 
 void loop () {
@@ -57,15 +83,23 @@ void loop () {
 
 
   while(1){
+    myFile = SD.open("test.txt", FILE_WRITE);
+    
     for(int s=0; s<n_sliders; s++){
       Serial.print(analogRead(sliders[s]));
+      myFile.print(analogRead(sliders[s]));
       int servo_val = map(analogRead(sliders[s]), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
       Serial.print(" ");
+      myFile.print(" ");
       Serial.print(servo_val);
+      myFile.print(servo_val);
       Serial.print("    ");
+      myFile.print(" ");
       myservo.write(s+1, servo_val);
       }
     Serial.println();
+    myFile.println();
+    myFile.close();
 
   }
 
