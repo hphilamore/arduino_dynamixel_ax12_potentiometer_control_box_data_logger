@@ -26,8 +26,10 @@ int servoNum = 1;
 char inputCommand ;             // a string to hold incoming data
 boolean inputComplete = false;
 
-const int sliders[] = {A1, A2};
-const int n_sliders = 2;
+const int sliders[] = {A1, A2, A3};
+const int n_sliders = 3;
+const int LEDs[] = {5, 6, 7};
+const int n_LEDs = 3;
 
 const int pot_max = 1023;
 const int pot_min = 0;
@@ -49,6 +51,10 @@ void loop () {
   myservo.write(1, 150); //ID:1  Pos:300  velocity:150
   myservo.write(2, 150); //ID:1  Pos:300  velocity:150
   Serial.println("done");
+  for(int i=0; i<n_LEDs; i++){
+    digitalWrite(LEDs[i], HIGH);
+  } 
+
 
   while(1){
     for(int s=0; s<n_sliders; s++){
