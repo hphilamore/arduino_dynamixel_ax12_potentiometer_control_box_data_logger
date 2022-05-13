@@ -40,11 +40,22 @@ const int sliders[] = {A1, A2, A3};
 const int n_sliders = 3;
 const int LEDs[] = {5, 6, 7};
 const int n_LEDs = 3;
+const int button_LED = 8; 
+const int button = 9; 
+
+int slider_vals [3];
+int servo_vals [3];
 
 const int pot_max = 1023;
 const int pot_min = 0;
 const int servo_max = 300;
 const int servo_min = 0;
+
+bool button_status = LOW;
+bool SD_present = HIGH;
+
+//char filename[] = "file_0.txt";
+String filename = "file_0.txt";
 
 File myFile;
 
@@ -52,21 +63,32 @@ File myFile;
 void setup () {
   Serial.begin (115200);
   myservo.begin ();
-//  pinMode(pot_pin0, INPUT);      // Input pin for slider/ potentiometer 
-//  pinMode(pot_pin1, INPUT);      // Input pin for slider/ potentiometer 
+  pinMode(button_LED, OUTPUT);      // LED on button 
+  pinMode(button, INPUT_PULLUP);      // LED on button 
 
-// Open serial communications and wait for port to open:
-  //Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(4)) {
+  if (!SD.begin(4) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
     Serial.println("initialization failed!");
-    while (1);
+    SD_present = LOW;
+    //while (1);
+    for (int i=0; i<5; i++){
+      for(int i=0; i<n_LEDs; i++){
+        digitalWrite(LEDs[i], HIGH);
+      }
+      delay(500);
+      for(int i=0; i<n_LEDs; i++){
+        digitalWrite(LEDs[i], LOW);
+      }
+      delay(500);
+    }
+    
   }
-  Serial.println("initialization done.");
+  else{Serial.println("initialization done.");}
 
 }
 
@@ -79,29 +101,74 @@ void loop () {
   Serial.println("done");
   for(int i=0; i<n_LEDs; i++){
     digitalWrite(LEDs[i], HIGH);
+    //digitalWrite(button_LED, LOW);
   } 
 
 
   while(1){
-    myFile = SD.open("test.txt", FILE_WRITE);
+    //myFile = SD.open("test.txt", FILE_WRITE);
     
-    for(int s=0; s<n_sliders; s++){
-      Serial.print(analogRead(sliders[s]));
-      myFile.print(analogRead(sliders[s]));
-      int servo_val = map(analogRead(sliders[s]), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
+    for(int i=0; i<n_sliders; i++){
+      Serial.print(analogRead(sliders[i]));
+      slider_vals[i] = analogRead(sliders[i]);
+      int servo_val = map(analogRead(sliders[i]), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
+      servo_vals[i] = servo_val;
       Serial.print(" ");
-      myFile.print(" ");
       Serial.print(servo_val);
-      myFile.print(servo_val);
       Serial.print("    ");
-      myFile.print(" ");
-      myservo.write(s+1, servo_val);
+      myservo.write(i+1, servo_val);
       }
     Serial.println();
-    myFile.println();
-    myFile.close();
+    
+    //myFile.println();
+    //myFile.close();
 
-  }
+    if(digitalRead(button) == HIGH){   // button released
+      digitalWrite(button_LED, LOW);
+      Serial.println("stop");
+      if(button_status){
+        Serial.println("closing file");
+        delay(1000);
+        myFile.close();
+        button_status = LOW;
+      }
+     }
+      
+  
+    else{                              // button pressed
+      if(SD_present){digitalWrite(button_LED, HIGH);}
+      Serial.println("record");
+      if(!button_status){
+        Serial.println("changing_states");
+        button_status = HIGH;
+        for(int i=0; i<100; i++){
+          Serial.println("file_" + String(i) + ".txt");
+          if(SD.exists("file_" + String(i) + ".txt")){
+            Serial.println(" exists");
+          }
+          else{
+            filename = "file_" + String(i) + ".txt";
+            Serial.println("new_file_name");
+            myFile = SD.open(filename, FILE_WRITE);
+            myFile.println();
+            myFile.println("slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
+            //myFile.close();
+            delay(1000);
+            break;  
+          }
+          delay(1000);
+        }
+       }
+      for(int i=0; i<n_sliders; i++){
+        myFile.print(slider_vals[i]);
+        myFile.print(" , ");
+        myFile.print(servo_vals[i]);
+        myFile.print(" , ");
+      }
+      myFile.println();
+     }
+   }
+   Serial.println(button_status);
 
 //  serialEvent();
 //  if (inputComplete) {
@@ -111,7 +178,6 @@ void loop () {
 //    inputCommand = 0;
 //    inputComplete = false;
 //  }
-
 }
 
 void serialEvent() {
