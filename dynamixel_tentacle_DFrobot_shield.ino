@@ -72,7 +72,7 @@ void setup () {
   
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(4) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
+  if (!SD.begin(5) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
     Serial.println("initialization failed!");
     SD_present = LOW;
     //while (1);
@@ -86,9 +86,31 @@ void setup () {
       }
       delay(500);
     }
-    
+
+    if (!card.init(SPI_HALF_SPEED, chipSelect)) {
+      Serial.println("card not detected!");
+      delay(500);
+    }
+
+    if (!volume.init(card)) {
+      Serial.println("FAT 16/32 partition not detected!");
+      delay(500);
+    }
   }
+
   else{Serial.println("initialization done.");}
+
+//  if (!card.init(SPI_HALF_SPEED, chipSelect)) {
+//    Serial.println("card not detected!");
+//    delay(500);
+//  }
+//
+//  if (!volume.init(card)) {
+//    Serial.println("FAT 16/32 partition not detected!");
+//    delay(500);
+//  }
+
+  
 
 }
 
@@ -128,7 +150,7 @@ void loop () {
       Serial.println("stop");
       if(button_status){
         Serial.println("closing file");
-        delay(1000);
+        //delay(1000);
         myFile.close();
         button_status = LOW;
       }
@@ -151,14 +173,17 @@ void loop () {
             Serial.println("new_file_name");
             myFile = SD.open(filename, FILE_WRITE);
             myFile.println();
-            myFile.println("slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
+            myFile.println("Time, slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
             //myFile.close();
-            delay(1000);
+            //delay(1000);
             break;  
           }
           delay(1000);
         }
        }
+      unsigned long Time = millis();
+      myFile.print(Time);
+      myFile.print(" , ");
       for(int i=0; i<n_sliders; i++){
         myFile.print(slider_vals[i]);
         myFile.print(" , ");
