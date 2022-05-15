@@ -72,7 +72,7 @@ void setup () {
   
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(5) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
+  if (!SD.begin(4) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
     Serial.println("initialization failed!");
     SD_present = LOW;
     //while (1);
