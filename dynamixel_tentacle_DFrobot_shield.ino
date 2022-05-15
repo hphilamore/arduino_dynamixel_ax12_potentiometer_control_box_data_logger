@@ -1,60 +1,38 @@
-/*
-  # This Sample code is to test the Digital Servo Shield.
-  # Editor : Leff, original by YouYou@DFRobot(Version1.0)
-  # Date   : 2016-1-19
-  # Ver    : 1.1
-  # Product: Digital Servo Shield for Arduino
-
-  # Hardwares:
-  1. Arduino UNO
-  2. Digital Servo Shield for Arduino
-  3. Digital Servos( Compatible with AX-12,CDS55xx...etc)
-  4. Power supply:6.5 - 12V
-
-  # How to use:
-  If you don't know your Servo ID number, please
-  1. Open the serial monitor, and choose NewLine,115200
-  2. Send command:'d',when it's finished, please close the monitor and re-open it
-  3. Send the command according to the function //controlServo()//
-*/
-
 #include <SPI.h>
+#include <SD.h>
 #include <ServoCds55.h>
 ServoCds55 myservo;
-// include the SD library:
-#include <SD.h>
 
 // set up variables using the SD utility library functions:
 Sd2Card card;
 SdVolume volume;
 SdFile root;
 
-// change this to match your SD shield or module;
-const int chipSelect = 4;
+const int chipSelect = 4;          // change this to match your SD shield or module; Uno=4, Mega=53
 
 int servoNum = 1;
-char inputCommand ;             // a string to hold incoming data
+char inputCommand ;                // a string to hold incoming data
 boolean inputComplete = false;
 
-const int sliders[] = {A1, A2, A3};
-const int n_sliders = 3;
-const int LEDs[] = {5, 6, 7};
-const int n_LEDs = 3;
-const int button_LED = 8; 
-const int button = 9; 
+const int sliders[] = {A1, A2, A3};// slider potentiometers to control motors
+const int n_sliders = 3;           // number of sliders
+const int LEDs[] = {5, 6, 7};      // LEDs on sliders
+const int n_LEDs = 3;              // number of LEDs
+const int button_LED = 8;          // LED on data record button
+const int button = 9;              // data record button
 
-int slider_vals [3];
-int servo_vals [3];
+int slider_vals [3];               // buffer to hold slider  values
+int servo_vals [3];                // buffer to hold servo positions 
 
-const int pot_max = 1023;
-const int pot_min = 0;
-const int servo_max = 300;
-const int servo_min = 0;
+// Set max ad min values for mapping slider potentiometer to servo position 
+const int pot_max = 1023;          // max potentiometer value
+const int pot_min = 0;             // min potentiometer value           
+const int servo_max = 300;         // servo max position (max range = [0, 300])
+const int servo_min = 0;           // servo min position
 
-bool button_status = LOW;
-bool SD_present = HIGH;
+bool button_status = LOW;          // default data record button position
+bool SD_present = HIGH;            // default SD card status
 
-//char filename[] = "file_0.txt";
 String filename = "file_0.txt";
 
 File myFile;
@@ -63,16 +41,16 @@ File myFile;
 void setup () {
   Serial.begin (115200);
   myservo.begin ();
-  pinMode(button_LED, OUTPUT);      // LED on button 
-  pinMode(button, INPUT_PULLUP);      // LED on button 
+  pinMode(button_LED, OUTPUT);       
+  pinMode(button, INPUT_PULLUP);    
 
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   
+  // Check if SD card is present and correct and flash slider LEDs 5 times if not
   Serial.print("Initializing SD card...");
-
-  if (!SD.begin(4) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
+  if (!SD.begin(chipSelect) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
     Serial.println("initialization failed!");
     SD_present = LOW;
     //while (1);
@@ -99,41 +77,27 @@ void setup () {
   }
 
   else{Serial.println("initialization done.");}
-
-//  if (!card.init(SPI_HALF_SPEED, chipSelect)) {
-//    Serial.println("card not detected!");
-//    delay(500);
-//  }
-//
-//  if (!volume.init(card)) {
-//    Serial.println("FAT 16/32 partition not detected!");
-//    delay(500);
-//  }
-
-  
-
 }
 
 void loop () {
-  // setting up
-  delay(10000);
-  myservo.setVelocity(200);     // set velocity to 100(range:0-300) in Servo mode
-  myservo.write(1, 150); //ID:1  Pos:300  velocity:150
-  myservo.write(2, 150); //ID:1  Pos:300  velocity:150
-  Serial.println("done");
-  for(int i=0; i<n_LEDs; i++){
+  delay(10000);                   // allow 10 seconds for servos to initialise
+  myservo.setVelocity(200);       // set velocity to 100(range:0-300) in Servo mode
+  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
+  myservo.write(2, 150);          
+  myservo.write(3, 150);          
+  Serial.println("servos ready");
+  for(int i=0; i<n_LEDs; i++){    // turn all slider LEDs on
     digitalWrite(LEDs[i], HIGH);
-    //digitalWrite(button_LED, LOW);
   } 
 
 
   while(1){
-    //myFile = SD.open("test.txt", FILE_WRITE);
     
+    // Map value of each slider to corresponding servo
     for(int i=0; i<n_sliders; i++){
       Serial.print(analogRead(sliders[i]));
       slider_vals[i] = analogRead(sliders[i]);
-      int servo_val = map(analogRead(sliders[i]), pot_min, pot_max, servo_min, servo_max);  // Map value to full range of servo
+      int servo_val = map(analogRead(sliders[i]), pot_min, pot_max, servo_min, servo_max);  
       servo_vals[i] = servo_val;
       Serial.print(" ");
       Serial.print(servo_val);
@@ -141,53 +105,49 @@ void loop () {
       myservo.write(i+1, servo_val);
       }
     Serial.println();
-    
-    //myFile.println();
-    //myFile.close();
 
-    if(digitalRead(button) == HIGH){   // button released
-      digitalWrite(button_LED, LOW);
+    // If record button is released 
+    if(digitalRead(button) == HIGH){   // button released (internal pullup)
+      digitalWrite(button_LED, LOW);   // turn the record button LED off
       Serial.println("stop");
-      if(button_status){
-        Serial.println("closing file");
-        //delay(1000);
+      if(button_status){               // if newly released
+        Serial.println("closing file");// stop recording 
         myFile.close();
         button_status = LOW;
       }
      }
       
   
-    else{                              // button pressed
-      if(SD_present){digitalWrite(button_LED, HIGH);}
+    // If button is pressed 
+    else{                              
+      if(SD_present){digitalWrite(button_LED, HIGH);}   // turn the record button on 
       Serial.println("record");
-      if(!button_status){
-        Serial.println("changing_states");
+      if(!button_status){                               // if newly pressed
         button_status = HIGH;
-        for(int i=0; i<100; i++){
+        for(int i=0; i<100; i++){                       // check for exting files of format "file_x.txt"
           Serial.println("file_" + String(i) + ".txt");
           if(SD.exists("file_" + String(i) + ".txt")){
             Serial.println(" exists");
           }
           else{
-            filename = "file_" + String(i) + ".txt";
-            Serial.println("new_file_name");
-            myFile = SD.open(filename, FILE_WRITE);
+            filename = "file_" + String(i) + ".txt";   // when an unused file name is found
+            Serial.println("new_file_name"); 
+            myFile = SD.open(filename, FILE_WRITE);    // open the file
             myFile.println();
+            // write column headings
             myFile.println("Time, slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
-            //myFile.close();
-            //delay(1000);
             break;  
           }
-          delay(1000);
+          //delay(1000);
         }
        }
-      unsigned long Time = millis();
-      myFile.print(Time);
+      unsigned long Time = millis();                   
+      myFile.print(Time);                // write time to SD card
       myFile.print(" , ");
       for(int i=0; i<n_sliders; i++){
-        myFile.print(slider_vals[i]);
+        myFile.print(slider_vals[i]);    // write slider vals to SD card
         myFile.print(" , ");
-        myFile.print(servo_vals[i]);
+        myFile.print(servo_vals[i]);     // write servo vals to SD card
         myFile.print(" , ");
       }
       myFile.println();
