@@ -1,5 +1,18 @@
+/*
+ * 
+Potentiometer sliders to control the position of 3 Dynamixel A-12 
+digital servo motors Latching push button is used to control 
+potentiometer value and servo position, as time series, to an SD card. 
+
+*/
+
 #include <SPI.h>
 #include <SD.h>
+File myFile;
+
+#include <RTClib.h>
+RTC_DS3231 rtc;
+
 #include <ServoCds55.h>
 ServoCds55 myservo;
 
@@ -35,7 +48,7 @@ bool SD_present = HIGH;            // default SD card status
 
 String filename = "file_0.txt";
 
-File myFile;
+
 
 
 void setup () {
@@ -48,9 +61,34 @@ void setup () {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   
-  // Check if SD card is present and correct and flash slider LEDs 5 times if not
+ 
+  // SETUP RTC MODULE
+  Serial.print("Initializing SD card...");
+  if (!rtc.begin()) {
+    Serial.println(F("Couldn't find RTC"));
+    delay(500);
+  }
+
+  // When time needs to be set on a new device, or after a power loss
+  // Set the RTC to the date & time this sketch was compiled
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  
+  // SETUP SD CARD
   Serial.print("Initializing SD card...");
   if (!SD.begin(chipSelect) or !card.init(SPI_HALF_SPEED, chipSelect) or !volume.init(card)) {
+    
+    // Identify problem
+    if (!card.init(SPI_HALF_SPEED, chipSelect)) {
+      Serial.println("card not detected!");
+      delay(500);
+    }
+
+    if (!volume.init(card)) {
+      Serial.println("FAT 16/32 partition not detected!");
+      delay(500);
+    }
+    
+    // Flash slider LEDs 5 times to show SD card initialization failed 
     Serial.println("initialization failed!");
     SD_present = LOW;
     //while (1);
@@ -64,16 +102,6 @@ void setup () {
       }
       delay(500);
     }
-
-    if (!card.init(SPI_HALF_SPEED, chipSelect)) {
-      Serial.println("card not detected!");
-      delay(500);
-    }
-
-    if (!volume.init(card)) {
-      Serial.println("FAT 16/32 partition not detected!");
-      delay(500);
-    }
   }
 
   else{Serial.println("initialization done.");}
@@ -82,9 +110,10 @@ void setup () {
 void loop () {
   delay(10000);                   // allow 10 seconds for servos to initialise
   myservo.setVelocity(200);       // set velocity to 100(range:0-300) in Servo mode
-  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
-  myservo.write(2, 150);          
-  myservo.write(3, 150);          
+  //myservo.SetID(2,1);//ID:1   newID:2
+//  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
+//  myservo.write(2, 150);          
+//  myservo.write(3, 150);          
   Serial.println("servos ready");
   for(int i=0; i<n_LEDs; i++){    // turn all slider LEDs on
     digitalWrite(LEDs[i], HIGH);
@@ -135,15 +164,36 @@ void loop () {
             myFile = SD.open(filename, FILE_WRITE);    // open the file
             myFile.println();
             // write column headings
-            myFile.println("Time, slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
+            myFile.println("Date, Time, ms_from_start, slider_1, servo_1, slider_2, servo_2, slider_3, servo_3");
             break;  
           }
           //delay(1000);
         }
        }
-      unsigned long Time = millis();                   
-      myFile.print(Time);                // write time to SD card
+      
+      DateTime now = rtc.now();
+
+      myFile.print(now.year(), DEC);     // write date to SD card
+      myFile.print("-");
+      myFile.print(now.month(), DEC);
+      myFile.print("-");
+      myFile.print(now.day(), DEC);
       myFile.print(" , ");
+
+
+      myFile.print(now.hour(), DEC);     // write time to SD card
+      myFile.print("-");
+      myFile.print(now.minute(), DEC);
+      myFile.print("-");
+      myFile.print(now.second(), DEC);
+      myFile.print(" , ");
+      
+                         
+      unsigned long Time = millis();     // write ms since start of recording to SD card
+      myFile.print(Time);                
+      myFile.print(" , ");
+
+      
       for(int i=0; i<n_sliders; i++){
         myFile.print(slider_vals[i]);    // write slider vals to SD card
         myFile.print(" , ");
