@@ -110,7 +110,6 @@ void setup () {
 void loop () {
   delay(10000);                   // allow 10 seconds for servos to initialise
   myservo.setVelocity(200);       // set velocity to 100(range:0-300) in Servo mode
-  //myservo.SetID(2,1);//ID:1   newID:2
 //  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
 //  myservo.write(2, 150);          
 //  myservo.write(3, 150);          
