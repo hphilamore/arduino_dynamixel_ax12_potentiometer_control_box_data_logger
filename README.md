@@ -21,5 +21,7 @@ Laser cut parts (.dxf file in repo)
 3 x Latching switch with LED : https://uk.rs-online.com/web/p/push-button-switches/8207555/
 3 x 330 ohm resistor
 power supply (7-12V): https://www.amazon.co.uk/gp/product/B09DGCJFRC/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1
+Arduino Screw Terminal Hat : https://www.amazon.co.uk/gp/product/B097G95T7Y/ref=ppx_yo_dt_b_asin_title_o05_s00?ie=UTF8&psc=1
+DFrobot Smart Arduino Digital Servo Shield for Dynamixel AX : https://www.dfrobot.com/product-958.html
 stand-offs
 srip-board 
