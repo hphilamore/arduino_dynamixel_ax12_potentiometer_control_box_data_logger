@@ -1,3 +1,7 @@
+A robot tentacle actuated uisng 3 dynamixel ax-12 servo motors. Circuit based on an arduino uno and DFrobot Smart Arduino Digital Servo Shield for Dynamixel AX.
+
+__________________________________________________________________________________________
+
 Robot Tentacle Control Instructions 
 
 1.	Turn on by connecting to mains power
@@ -13,15 +17,15 @@ ________________________________________________________________________________
 
 Bill of Materials 
 
-Laser cut parts (.dxf file in repo)
-1 x Arduino Uno: https://uk.rs-online.com/web/p/arduino/7154081/
-1 x SD card module + SD card: https://www.amazon.co.uk/arduino-sd-card-module/s?k=arduino+sd+card+module
-1 x RTC module: hhttps://learn.sparkfun.com/tutorials/real-time-clock-module-hookup-guide/all
-3 x Slider potentiometer with LED: https://uk.rs-online.com/web/p/potentiometers/7703135/
-3 x Latching switch with LED : https://uk.rs-online.com/web/p/push-button-switches/8207555/
-3 x 330 ohm resistor
-power supply (7-12V): https://www.amazon.co.uk/gp/product/B09DGCJFRC/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1
-Arduino Screw Terminal Hat : https://www.amazon.co.uk/gp/product/B097G95T7Y/ref=ppx_yo_dt_b_asin_title_o05_s00?ie=UTF8&psc=1
-DFrobot Smart Arduino Digital Servo Shield for Dynamixel AX : https://www.dfrobot.com/product-958.html
-stand-offs
-srip-board 
+- Laser cut parts (.dxf file in repo)
+- 1 x Arduino Uno: https://uk.rs-online.com/web/p/arduino/7154081/
+- 1 x SD card module + SD card: https://www.amazon.co.uk/arduino-sd-card-module/s?k=arduino+sd+card+module
+- 1 x RTC module: hhttps://learn.sparkfun.com/tutorials/real-time-clock-module-hookup-guide/all
+- 3 x Slider potentiometer with LED: https://uk.rs-online.com/web/p/potentiometers/7703135/
+- 3 x Latching switch with LED : https://uk.rs-online.com/web/p/push-button-switches/8207555/
+- 3 x 330 ohm resistor
+- power supply (7-12V): https://www.amazon.co.uk/gp/product/B09DGCJFRC/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1
+- Arduino Screw Terminal Hat : https://www.amazon.co.uk/gp/product/B097G95T7Y/ref=ppx_yo_dt_b_asin_title_o05_s00?ie=UTF8&psc=1
+- DFrobot Smart Arduino Digital Servo Shield for Dynamixel AX : https://www.dfrobot.com/product-958.html
+- stand-offs
+- strip-board 
