@@ -63,7 +63,7 @@ void setup () {
   
  
   // SETUP RTC MODULE
-  Serial.print("Initializing SD card...");
+  Serial.print("Initializing RTC...");
   if (!rtc.begin()) {
     Serial.println(F("Couldn't find RTC"));
     delay(500);
@@ -104,22 +104,32 @@ void setup () {
     }
   }
 
-  else{Serial.println("initialization done.");}
-}
+  else{Serial.println("SD card initialization done.");}
 
-void loop () {
+
+  // SETUP SERVOS
   delay(10000);                   // allow 10 seconds for servos to initialise
   myservo.setVelocity(200);       // set velocity to 100(range:0-300) in Servo mode
-//  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
-//  myservo.write(2, 150);          
-//  myservo.write(3, 150);          
   Serial.println("servos ready");
   for(int i=0; i<n_LEDs; i++){    // turn all slider LEDs on
     digitalWrite(LEDs[i], HIGH);
   } 
+  
+}
+
+void loop () {
+//  delay(10000);                   // allow 10 seconds for servos to initialise
+//  myservo.setVelocity(200);       // set velocity to 100(range:0-300) in Servo mode
+//  myservo.write(1, 150);          // set servos ID 1-3 to centre/neutral position 
+//  myservo.write(2, 150);          
+//  myservo.write(3, 150);          
+//  Serial.println("servos ready");
+//  for(int i=0; i<n_LEDs; i++){    // turn all slider LEDs on
+//    digitalWrite(LEDs[i], HIGH);
+//  } 
 
 
-  while(1){
+  //while(1){
     
     // Map value of each slider to corresponding servo
     for(int i=0; i<n_sliders; i++){
@@ -201,8 +211,8 @@ void loop () {
       }
       myFile.println();
      }
-   }
-   Serial.println(button_status);
+   //}
+   //Serial.println(button_status);
 
 //  serialEvent();
 //  if (inputComplete) {
